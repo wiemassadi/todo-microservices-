@@ -74,22 +74,6 @@ def create_task():
     return jsonify({'id':tid,'title':data['title'],'done':False}), 201
 
 
-@app.route('/tasks/<int:task_id>', methods=['DELETE'])
-def delete_task(task_id):
-    conn = get_db()
-    cur = conn.cursor()
-    cur.execute('DELETE FROM tasks WHERE id=%s RETURNING id', (task_id,))
-    d = cur.fetchone()
-    conn.commit()
-    conn.close()
-
-    if not d:
-        return jsonify({'error':'not found'}), 404
-
-    redis_client.delete('all_tasks')
-    return jsonify({'message':f'Task {task_id} deleted'})
-
-
 @app.route('/health')
 def health():
     v = redis_client.incr('visits')
