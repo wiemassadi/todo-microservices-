@@ -24,3 +24,6 @@ jobs:
 
       - name: Push to Docker Hub
         run: docker push $REPO:latest
+        
+      - name: Run docker-compose
+        run: docker compose up -d
