@@ -57,6 +57,23 @@ def get_tasks():
     return jsonify(tasks)
 
 
+@app.route('/tasks', methods=['POST'])
+def create_task():
+    data = request.get_json()
+    conn = get_db()
+    cur = conn.cursor()
+    cur.execute(
+        'INSERT INTO tasks(title,done) VALUES(%s,%s) RETURNING id',
+        (data['title'], False)
+    )
+    tid = cur.fetchone()[0]
+    conn.commit()
+    conn.close()
+
+    redis_client.delete('all_tasks')
+    return jsonify({'id':tid,'title':data['title'],'done':False}), 201
+
+
 @app.route('/tasks/<int:task_id>', methods=['DELETE'])
 def delete_task(task_id):
     conn = get_db()
